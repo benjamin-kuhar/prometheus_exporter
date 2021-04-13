@@ -6,6 +6,7 @@ module PrometheusExporter::Server
       @metrics = {}
       @http_requests_total = nil
       @http_duration_seconds = nil
+      @http_duration_histogram_seconds = nil
       @http_redis_duration_seconds = nil
       @http_sql_duration_seconds = nil
       @http_queue_duration_seconds = nil
@@ -38,6 +39,12 @@ module PrometheusExporter::Server
           "Time spent in HTTP reqs in seconds."
         )
 
+        @metrics["http_duration_histogram_seconds"] = @http_duration_histogram_seconds = PrometheusExporter::Metric::Histogram.new(
+          "http_duration_histogram_seconds",
+          "Time spent in HTTP reqs in seconds. Histograms for calculating apdex and long durations.",
+          buckets: [1, 4, 50]
+        )
+
         @metrics["http_redis_duration_seconds"] = @http_redis_duration_seconds = PrometheusExporter::Metric::Summary.new(
           "http_redis_duration_seconds",
           "Time spent in HTTP reqs in Redis, in seconds."
@@ -64,6 +71,7 @@ module PrometheusExporter::Server
 
       if timings = obj["timings"]
         @http_duration_seconds.observe(timings["total_duration"], labels)
+        @http_duration_histogram_seconds.observe(timings["total_duration"], labels)
         if redis = timings["redis"]
           @http_redis_duration_seconds.observe(redis["duration"], labels)
         end
