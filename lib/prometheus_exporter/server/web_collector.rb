@@ -41,8 +41,8 @@ module PrometheusExporter::Server
 
         @metrics["http_duration_histogram_seconds"] = @http_duration_histogram_seconds = PrometheusExporter::Metric::Histogram.new(
           "http_duration_histogram_seconds",
-          "Time spent in HTTP reqs in seconds. Histograms for calculating apdex and long durations.",
-          buckets: [1, 4, 50]
+          "Buckets for time spent in HTTP reqs in seconds. Histogram that can be used for calculating apdex.",
+          buckets: [1, 4]
         )
 
         @metrics["http_redis_duration_seconds"] = @http_redis_duration_seconds = PrometheusExporter::Metric::Summary.new(
